@@ -2,13 +2,13 @@ module.exports = {
   //端口
   port: 8088,
   //数据库
-  mysql_host: 'localhost',
-  mysql_port: 3306,
-  mysql_user: 'root',
+  mysql_host: '',
+  mysql_port: ,
+  mysql_user: '',
   mysql_pass: '',
   mysql_db: 'huaxiaziben',
   //超级管理员
-  root: 'theCodingApe',
+  root: '',
   pass: '870e0fb560ac33d462b2789c447d4259',
   //列表显示内容
   show_in_article_list: 'ID: ID, title: 标题, description: 描述, article: 文章, date: 日期',
