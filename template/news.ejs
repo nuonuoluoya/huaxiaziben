@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>华夏资本</title>
+	<link charset="utf-8" rel="stylesheet" href="/css/reset.css">
+  <link charset="utf-8" rel="stylesheet" href="/css/index.css">
+	<link charset="utf-8" rel="stylesheet" href="/css/banner.css">
+</head>
+<body>
+	<main class="default">
+	  <header class="header header_about">
+	    <%- include('./components/header_bk.ejs') -%>
+	  </header>
+    <section class="new">
+      <% data.forEach(item=>{ %>
+      <div class="new_list">
+				<a href="javascript:;"><img src="<%= item.img_path -%>" /></a>
+				<h1><a href="/article/<%= item.ID -%>"><%= item.title -%></a></h1>
+				<p class="text"><%= item.description -%></p>
+				<span><%= item.date -%></span>
+      </div>
+			<% }); %>
+			<div class="page_container">
+				<% if (page>1) { %>
+				<a href="?page=<%= page-1 -%>" class="prev">上一页</a>
+				<% } %>
+				<ul class="page_index">
+					<%
+					for (let i=1;i<=page_count;i++){ %>
+					<% if (i==page) { %>
+					<li><a href="javascript:;" style="text-decoration:underline;font-weight: bold;"><%= i -%></a></li>
+					<% } else { %>
+					<li><a href="?page=<%=i%>"><%= i -%></a></li>
+					<% }}; %>
+				</ul>
+				<% if (page<page_count){ %>
+				<a href="?page=<%= page+1 -%>" class="next">下一页</a>
+				<% } %>
+			</div>
+    </section>
+    <%- include('./components/bottom.ejs') -%>
+	</main>
+<script charset="utf-8" src="js/utils.js"></script>
+<script charset="utf-8" src="js/tween.js"></script>
+<script charset="utf-8" src="js/AutoBanner.js"></script>
+</body>
+</html>

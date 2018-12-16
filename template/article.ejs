@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>华夏资本</title>
+    <link charset="utf-8" rel="stylesheet" href="/css/reset.css">
+    <link charset="utf-8" rel="stylesheet" href="/css/index.css">
+  	<link charset="utf-8" rel="stylesheet" href="/css/banner.css">
+  </head>
+  <body>
+    <main class="default">
+  	  <header class="header header_about">
+  	    <%- include('./components/header_bk.ejs') -%>
+  	  </header>
+      <section class="article_container">
+        <h2 class="article_title"><%= data[0].title -%></h2>
+        <div id="article_content" class="article_content"><%- data[0].article -%></p>
+      </section>
+      <div class="page_container" id="page_container">
+				<ul class="page_index" id="page_index"></ul>
+			</div>
+      <%- include('./components/bottom.ejs') -%>
+  	</main>
+  </body>
+  <script src="/js/utils.js"></script>
+  <script>
+    var arr = [];
+    var page = document.getElementById('article_content');
+    var pageIndex = document.getElementById('page_index');
+    var pageCount = Math.ceil((parseInt(page.scrollHeight) / parseInt(page.offsetHeight)).toFixed(1));
+
+    function showPage(x) {
+      page.scrollTop = (x - 1) * parseInt(page.offsetHeight);
+    }
+
+    for (var i=1;i<=pageCount;i++) {
+      var oLi = document.createElement('li');
+      oLi.innerHTML += "<a href=\"javascript:showPage('"+i+"');\">"+i+"</a> ";
+      arr.push(oLi);
+      pageIndex.appendChild(oLi);
+    }
+
+    for (var k=0;k<arr.length;k++) {
+      arr[0].style.fontWeight = 'bold';
+      arr[k].onclick = function() {
+        for (var k=0;k<arr.length;k++) {
+          arr[k].style.fontWeight = 'normal';
+        }
+        this.style.fontWeight = 'bold';
+      }
+    }
+  </script>
+</html>

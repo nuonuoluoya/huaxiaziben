@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>华夏资本</title>
+	<link charset="utf-8" rel="stylesheet" href="css/reset.css">
+  <link charset="utf-8" rel="stylesheet" href="css/index.css">
+	<link charset="utf-8" rel="stylesheet" href="css/banner.css">
+</head>
+<body>
+	<main class="default">
+	  <header class="header header_about">
+	    <%- include('./components/header_bk.ejs') -%>
+	  </header>
+	  <section class="mid_left">
+	    <div class="swipe" id="swipe">
+	    	<div class="swipeInner">
+					<div id='1'><img src="" trueImg="img/ep1.png" /></div>
+					<div id='2'><img src="" trueImg="img/ep2.jpg" /></div>
+					<div id='3'><img src="" trueImg="img/ep3.jpg" /></div>
+					<div id='4'><img src="" trueImg="img/ep4.jpg" /></div>
+					<div id='5'><img src="" trueImg="img/ep5.jpg" /></div>
+	    	</div>
+				<a href="javascript:;" class="swipeLeft"></a>
+				<a href="javascript:;" class="swipeRight"></a>
+	    </div>
+	  </section>
+		<section class="mid_right">
+			<div class="about_title">
+				<a href="#" class="about_title_en"><img src="img/about_logo.png" /></a>
+				<a href="#" class="about_title_cn"><img src="img/about_logo_cn.png" /></a>
+			</div>
+			<p class="about_content">华夏贷（北京）资本管理有限公司，一站式金融综合服务平台。公司成立于2016年，专注为各大企业提供产品销售、数据采集、资产管理、法律服务等专业且便捷的金融服务，秉承多元化、低成本、低风险、高效率的经营理念，为用户创造财富价值。</p>
+		</section>
+	  <%- include('./components/bottom.ejs') -%>
+	</main>
+<script charset="utf-8" src="js/utils.js"></script>
+<script charset="utf-8" src="js/tween.js"></script>
+<script charset="utf-8" src="js/AutoBanner.js"></script>
+<script type="text/javascript">
+	var banner1 = new AutoBanner('swipe');
+</script>
+</body>
+</html>

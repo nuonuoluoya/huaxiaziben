@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>管理端</title>
+    <script src="/js/jquery.js" charset="utf-8"></script>
+    <script src="/js/bootstrap.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <div class="page-wrap">
+      <div class="page-menu">
+        <ul class="nav nav-pills nav-stacked" id="nav">
+          <li role="presentation" title="article_list"><a href="/admin/article_list" target="_self">文章列表</a></li>
+        </ul>
+      </div>
+      <div class="page-content">
+        <div class="navbar navbar-default">
+          <form class="navbar-form navbar-left" action="?" method="get">
+            <div class="form-group" style="margin-right:20px;">
+              <button type="button" id="btn_add" class="btn btn-default glyphicon glyphicon-plus">新建</button>
+            </div>
+            <div class="form-group" style="margin-right:20px;">
+              <button type="button" id="btn_del" class="btn btn-default glyphicon glyphicon-remove">删除</button>
+            </div>
+            <div class="form-group">
+              <input type="search" class="form-control" name="keyword" value="<%= keyword %>">
+              <button type="submit" class="btn btn-default">搜索</button>
+            </div>
+          </form>
+        </div>
+        <nav aria-label="Page navigation">
+          <ul class="pagination margin-0">
+            <li>
+              <a href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <%
+            let start = cur_page-(show_page_count-1)/2;
+            let end = cur_page+(show_page_count-1)/2;
+            if (start < 1) {
+              start = 1;
+            };
+            if (end > page_count) {
+              end = page_count;
+            }
+
+            for (let page=start;page<=end;page++){ %>
+              <% if (page==cur_page) { %>
+              <li><a href="?page=<%= page %>">[<%= page %>]</a></li>
+              <% } else { %>
+              <li><a href="?page=<%= page %>"><%= page %></a></li>
+              <% } %>
+            <% } %>
+            <li>
+              <a href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>
+                <label>
+                  ID
+                </label>
+              </th>
+              <%
+              for(let name in jsonShowName){
+                if(name=='ID') continue;
+              %>
+              <th style="width:16%;"><%= jsonShowName[name] %></th>
+              <% } %>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% data.forEach(json=>{ %>
+            <tr>
+              <td>
+                <label>
+                  <input type="checkbox" name="ID_check" value="<%= json.ID %>">
+                    <%= json.ID %>
+                </label>
+              </td>
+              <%
+              for (let name in jsonShowName){
+                if (name=='ID') continue;
+                if (typeof json[name]=='string'&&json[name].length>32) {
+                    json[name] = json[name].substring(3,33).replace(/(<\/p>|<|<\/|<\/p)/g, '') + '...';
+                }
+                if (name==='date') {
+                  let oDate = new Date(json['date'] * 1000);
+                  json['date'] = oDate.getFullYear() + '年' + (oDate.getMonth() + 1) + '月' + oDate.getDate() + '日';
+                }
+              %>
+              <td><%= json[name] %></td>
+              <% } %>
+              <td>
+                <a href="javascript:;" onclick="mod_data('<%= json.ID %>')">编辑</a>
+                <a href="/admin/article_list/delete?id=<%= json.ID %>" onclick="return confirm('确定删除这篇文章吗？')">删除</a>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="shadow" class="shadow"></div>
+    <div id="dialog" class="panel panel-default add_modify_dialog">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          添加/修改
+          <a href="#" id="btn_close" class="pull-right glyphicon glyphicon-remove"></a>
+        </h3>
+      </div>
+      <div class="panel-body" style="overflow:auto; height:460px;">
+        <form id="data_form" class="form-horizontal" action="?" method="post" enctype="multipart/form-data">
+          <input type="hidden" id="is_mod" name="is_mod" value="false">
+          <input type="hidden" id="old_id" name="old_id" value="">
+          <div id="form_container">
+          </div>
+          <div id="div1"></div>
+          <textarea id="text1" name="article" style="display:none;"></textarea>
+          <div class="form-group">
+            <div class="col-sm-10 col-sm-offset-2">
+              <button type="submit" class="btn btn-primary">提交</button>
+              <button type="button" id="btn_cancel" class="btn btn-danger">取消</button>
+            </div>
+        </form>
+      </div>
+    </div>
+    <script type="text/javascript" src="/js/wangEditor.min.js"></script>
+    <script>
+      var E = window.wangEditor;
+      var editor = new E('#div1');
+      var $text1 = $('#text1')
+      editor.customConfig.onchange = function (html) {
+          // 监控变化，同步更新到 textarea
+          $text1.val(html);
+      }
+      editor.create();
+      // 初始化 textarea 的值
+      $text1.val(editor.txt.html());
+    </script>
+    <script type="text/javascript" src="/js/form_datas.js"></script>
+    <script>
+      let oShadow = $('#shadow')[0];
+      let oDialog = $('#dialog')[0];
+      let oBtnAdd = $('#btn_add')[0];
+      let oBtnClose = $('#btn_close')[0];
+      let oBtnCancel = $('#btn_cancel')[0];
+      let oFormContainer = $('#form_container')[0];
+      let oBtnDelBat = $('#btn_del')[0];
+      let aCheck = Array.from(document.getElementsByName('ID_check'));
+
+      function mod_data(id) {
+        $.ajax({
+          url: '/admin/<%= table %>/get_data',
+          data: {id},
+          dataType: 'json',
+          success (json) {
+            oShadow.style.display = 'block';
+            oDialog.style.display = 'block';
+            createForm(json);
+            $('#is_mod')[0].value = true;
+            $('#old_id')[0].value = id;
+          },
+          error (err) {
+            alert('数据没有找到，请重试');
+          }
+        })
+      }
+
+      oBtnAdd.onclick = function () {
+        oShadow.style.display = 'block';
+        oDialog.style.display = 'block';
+        createForm();
+        $('#is_mod')[0].value = false;
+      };
+      oBtnCancel.onclick = oBtnClose.onclick = function () {
+        oShadow.style.display = 'none';
+        oDialog.style.display = 'none';
+      };
+
+      const form_inputs = form_datas['<%= table %>']
+
+      function createForm(old_data={}) {
+        oFormContainer.innerHTML = '';
+
+        for (var i=0;i<form_inputs.length;i++) {
+          let oDiv = document.createElement('div');
+          oDiv.className = 'form-group';
+          oDiv.innerHTML =
+          `
+            <label for="id${i}" class="col-sm-2 control-label">${form_inputs[i].title}</label>
+            <div class="col-sm-10">
+              <input type="${form_inputs[i].type}" class="form-control" name="${form_inputs[i].name}" id="id${i}" placeholder="请输入${form_inputs[i].title}..." value="${old_data[form_inputs[i].name]||''}">
+            </div>
+          `;
+          oFormContainer.appendChild(oDiv);
+
+          editor.txt.html(old_data.article);
+
+          if (form_inputs[i].type=='date') {
+            function add_zero(n) {
+              return n >= 10 ? (''+n) : ('0'+n);
+            }
+            if (old_data[form_inputs[i].name]&&old_data[form_inputs[i].name]!='0') {
+              let oDate = new Date(old_data[form_inputs[i].name]*1000);
+              document.getElementById(`id${i}`).value = oDate.getFullYear()+'-'+add_zero((oDate.getMonth()+1))+'-'+add_zero(oDate.getDate());
+            }
+          }
+        }
+      }
+
+      let oForm = $('#data_form')[0];
+      oForm.onsubmit = function () {
+        form_inputs.forEach(json=>{
+          if (json.type=='date') {
+            let oInput = document.getElementsByName(json.name)[0];
+            let time = Math.floor(new Date(oInput.value).getTime() / 1000) || 0;
+            let oNewInput = document.createElement('input');
+            oNewInput.type = 'hidden';
+            oNewInput.name = json.name;
+            oInput.name = '';
+            oNewInput.value = time;
+            oFormContainer.appendChild(oNewInput);
+          }
+        });
+      }
+
+      oBtnDelBat.onclick = function() {
+        let arr = [];
+        aCheck.forEach(ch=>{
+          if (ch.checked) {
+            arr.push(ch.value);
+          }
+        });
+
+        if (arr.length==0) {
+          alert('请选择要删除的项');
+        } else {
+          let url = `/admin/house/delete?id=${encodeURIComponent(arr.join(','))}`;
+
+          if (confirm(`确定删除这${arr.length}项数据吗？`)) {
+            window.location = url;
+          }
+        }
+      }
+
+      let oNav = $('#nav')[0];
+      Array.from(oNav.children).forEach(li=>{
+        li.className = li.title == '<%= table %>' ? 'active' : '';
+      });
+    </script>
+  </body>
+</html>
